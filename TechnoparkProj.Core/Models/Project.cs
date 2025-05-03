@@ -3,14 +3,6 @@ namespace TechnoparkProj.Core.Models
 {
     public class Project
     {
-        //public Project (Guid projectId, Guid professorId, Guid instituteId, string description)
-        //{
-        //    Id = projectId;
-        //    ProfessorId = professorId;
-        //    InstituteId = instituteId;
-        //    Description = description;
-        //}
-        
         public Project()
         {
             Id = 0;

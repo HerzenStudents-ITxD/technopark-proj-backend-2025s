@@ -1,11 +1,16 @@
 using TechnoparkProj.DataAccess;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 //using TechnoparkProj.DataAccess.Repositories;
 //using TechnoparkProj.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

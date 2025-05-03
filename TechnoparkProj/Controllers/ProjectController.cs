@@ -19,7 +19,12 @@ namespace TechnoparkProj.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
         {
-            return await _context.Projects.ToListAsync();
+            return await _context.Projects
+                .Include(p => p.School)
+                    .ThenInclude(s => s.Institute)
+                .Include(p => p.Tickets)
+                    .ThenInclude(t=>t.Sprint)
+                .ToListAsync();
         }
 
 
