@@ -1,11 +1,12 @@
 ﻿// Спринт
 namespace TechnoparkProj.Core.Models
 {
-    public enum Duration
+    public enum SprintStatus
     {
-        NONE = 0,
-        ONEWEEK = 7,
-        TWOWEEKS = 14
+        PLANNED,
+        WORKING,
+        DONE,
+        OVERDUE
     }
 
     public class Sprint
@@ -13,14 +14,16 @@ namespace TechnoparkProj.Core.Models
         public Sprint()
         {
             Id = 0;
-            Duration = Duration.NONE;
-            StartDate = DateTime.Parse("10-10-2010");
         }
 
         public int Id { get; set; }
-        public Duration Duration { get; set; }
-        public DateTime StartDate { get; set; }
+        public bool IsBacklog { get; set; }
+        public SprintStatus Status { get; set; }
+
+        // внешние ключи
+        public int ProjectId { get; set; }
 
         public ICollection<Ticket>? Tickets { get; set; }
+        public Project Project { get; set; }
     }
 }

@@ -4,6 +4,8 @@ using System.Text.Json.Serialization;
 //using TechnoparkProj.DataAccess.Repositories;
 //using TechnoparkProj.Application.Services;
 
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
@@ -20,6 +22,17 @@ IServiceCollection serv_col = builder.Services.AddDbContext<TechnoparkProjDbCont
 //builder.Services.AddScoped<IProjectService, ProjectService>();
 //builder.Services.AddScoped<IProjectsRepository, ProjectsRepository>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") // URL вашего Vite приложения
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -31,9 +44,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors(MyAllowSpecificOrigins);
+
 app.UseAuthorization();
 
 app.MapControllers();
+
+//app.UseCors(builder => builder
+//    .WithOrigins("http://localhost:5173")
+//    .AllowAnyMethod()
+//    .AllowAnyHeader());
 
 using (var scope = app.Services.CreateScope())
 {

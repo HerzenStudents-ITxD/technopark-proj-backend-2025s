@@ -11,5 +11,6 @@ namespace TechnoparkProj.Core.Models
 
         public Institute Institute { get; set; }
         public ICollection<Project> Projects { get; set; }
+        public ICollection<Student> Students { get; set; }
     }
 }

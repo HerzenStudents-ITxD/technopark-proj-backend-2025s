@@ -1,12 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Net.NetworkInformation;
+using TechnoparkProj.Contracts;
 using TechnoparkProj.Core.Models;
 using TechnoparkProj.DataAccess;
 
 namespace TechnoparkProj.Controllers
 {
     [ApiController]
-    [Route("controller")]
+    [Route("controller/project")]
     public class ProjectController : ControllerBase
     {
         private readonly TechnoparkProjDbContext _context;
@@ -16,18 +21,126 @@ namespace TechnoparkProj.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Project>>> GetProjects()
+        private static int CalculateProgress(ICollection<Sprint> sprints)
         {
-            return await _context.Projects
-                .Include(p => p.School)
-                    .ThenInclude(s => s.Institute)
-                .Include(p => p.Tickets)
-                    .ThenInclude(t=>t.Sprint)
-                .ToListAsync();
+            int total = 0;
+            int totalCompleted = 0;
+            foreach(Sprint sprint in sprints)
+            {
+                if (sprint.Tickets == null || sprint.Tickets.Count == 0)
+                    continue;
+                total += sprint.Tickets.Count;
+                totalCompleted += sprint.Tickets.Count(t => t.Status == TicketStatus.DONE);
+            }
+            if (total == 0)
+                return 0;
+
+            return (int)((double)totalCompleted / total * 100);
         }
 
+        //private static List<StudentData> GetStudentData(ICollection<StudProjLink> links)
+        //{
+        //    List<StudentData> returnList = new List<StudentData>();
 
+        //    foreach (StudProjLink link in links)
+        //    {
+        //        StudentData studentData = new StudentData(0, );
+        //        studentData.Id = link.StudentId;
+        //        studentData.FullName = link.Student.Surname + " " + link.Student.Name;
+        //        returnList.Add(studentData);
+        //    }
+
+        //    return returnList;
+        //}
+
+        [HttpGet("db-test")]
+        public async Task<ActionResult> TestDatabaseConnection()
+        {
+            try
+            {
+                // Test raw connection
+                await _context.Database.OpenConnectionAsync();
+                _context.Database.CloseConnection();
+
+                // Test if ANY table exists
+                var tables = await _context.Database.SqlQueryRaw<string>(
+                    "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'"
+                ).ToListAsync();
+
+                return Ok(new
+                {
+                    ConnectionSuccessful = true,
+                    TablesInDatabase = tables
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    Error = ex.Message,
+                    Details = ex.InnerException?.Message,
+                    StackTrace = ex.StackTrace
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProjects([FromQuery] GetProjectsRequest request)
+        {
+
+            var projects = _context.Projects
+                .Where(n => string.IsNullOrWhiteSpace(request.Search) ||
+                            n.Name.ToLower().Contains(request.Search.ToLower()))
+                .Include(p => p.School)
+                    .ThenInclude(s => s.Institute)
+                .Include(p => p.Sprints)
+                    .ThenInclude(s => s.Tickets);
+
+
+            var projectsDto = await projects
+                .Select(p => new ProjectsDto(
+                                            p.Id,
+                                            p.Name,
+                                            p.Description,
+                                            p.School.Institute.Name,
+                                            p.School.Name,
+                                            p.Course,
+                                            p.Semester,
+                                            p.StudProjLinks.Select(spl => new StudentData(
+                                                spl.Student.Id,
+                                                spl.Student.Surname + " " + spl.Student.Name
+                                            )).ToList(),
+                                            p.Year,
+                                            0
+                                            )
+                )
+                .ToListAsync();
+
+            return Ok(new GetProjectsResponse(projectsDto));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateProject([FromBody] CreateProjectRequest request)
+        {
+            var project = new Project(0,
+                                        request.Name,
+                                        request.Description,
+                                        request.Course,
+                                        request.Semester,
+                                        request.Year,
+                                        request.SprintDuration,
+                                        request.StartDate,
+                                        request.SchoolId);
+
+            await _context.Projects.AddAsync(project);
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                success = true,
+                projectId = project.Id
+            });
+        }
     }
 }
 
