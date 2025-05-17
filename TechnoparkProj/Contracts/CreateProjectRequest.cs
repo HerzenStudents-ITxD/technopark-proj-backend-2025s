@@ -11,7 +11,7 @@ namespace TechnoparkProj.Contracts
       Course Course,
       Semester Semester,
       int Year,
-      int StudentId,
+      ICollection<int> StudentIds,
       Duration SprintDuration,
       DateTime StartDate
     );

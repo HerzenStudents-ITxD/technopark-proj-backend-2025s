@@ -169,6 +169,16 @@ namespace TechnoparkProj.Controllers
             await _context.Projects.AddAsync(project);
             await _context.SaveChangesAsync();
 
+            foreach (int studentid in request.StudentIds)
+            {
+                StudProjLink link = new StudProjLink();
+               
+                link.StudentId = studentid;
+                link.ProjectId = project.Id;
+                await _context.StudProjLinks.AddAsync(link);
+                await _context.SaveChangesAsync();
+            }
+
             return Ok(new
             {
                 success = true,
