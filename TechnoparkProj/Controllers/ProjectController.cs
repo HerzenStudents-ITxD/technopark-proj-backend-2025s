@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.Web;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -53,44 +54,77 @@ namespace TechnoparkProj.Controllers
         //    return returnList;
         //}
 
-        [HttpGet("db-test")]
-        public async Task<ActionResult> TestDatabaseConnection()
-        {
-            try
-            {
-                // Test raw connection
-                await _context.Database.OpenConnectionAsync();
-                _context.Database.CloseConnection();
+        //[HttpGet("db-test")]
+        //public async Task<ActionResult> TestDatabaseConnection()
+        //{
+        //    try
+        //    {
+        //        // Test raw connection
+        //        await _context.Database.OpenConnectionAsync();
+        //        _context.Database.CloseConnection();
 
-                // Test if ANY table exists
-                var tables = await _context.Database.SqlQueryRaw<string>(
-                    "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'"
-                ).ToListAsync();
+        //        // Test if ANY table exists
+        //        var tables = await _context.Database.SqlQueryRaw<string>(
+        //            "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE'"
+        //        ).ToListAsync();
 
-                return Ok(new
-                {
-                    ConnectionSuccessful = true,
-                    TablesInDatabase = tables
-                });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new
-                {
-                    Error = ex.Message,
-                    Details = ex.InnerException?.Message,
-                    StackTrace = ex.StackTrace
-                });
-            }
-        }
+        //        return Ok(new
+        //        {
+        //            ConnectionSuccessful = true,
+        //            TablesInDatabase = tables
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new
+        //        {
+        //            Error = ex.Message,
+        //            Details = ex.InnerException?.Message,
+        //            StackTrace = ex.StackTrace
+        //        });
+        //    }
+        //}
 
-        [HttpGet]
+        [HttpGet("all-projects")]
         public async Task<IActionResult> GetProjects([FromQuery] GetProjectsRequest request)
         {
 
             var projects = _context.Projects
                 .Where(n => string.IsNullOrWhiteSpace(request.Search) ||
                             n.Name.ToLower().Contains(request.Search.ToLower()))
+                .Include(p => p.School)
+                    .ThenInclude(s => s.Institute)
+                .Include(p => p.Sprints)
+                    .ThenInclude(s => s.Tickets);
+
+
+            var projectsDto = await projects
+                .Select(p => new ProjectsDto(
+                                            p.Id,
+                                            p.Name,
+                                            p.Description,
+                                            p.School.Institute.Name,
+                                            p.School.Name,
+                                            p.Course,
+                                            p.Semester,
+                                            p.StudProjLinks.Select(spl => new StudentData(
+                                                spl.Student.Id,
+                                                spl.Student.Surname + " " + spl.Student.Name
+                                            )).ToList(),
+                                            p.Year,
+                                            0
+                                            )
+                )
+                .ToListAsync();
+
+            return Ok(new GetProjectsResponse(projectsDto));
+        }
+
+        [HttpGet("proj-by-id")]
+        public async Task<ActionResult> GetProjectById(int id)
+        {
+            var projects = _context.Projects
+                .Where(p => p.Id == id)
                 .Include(p => p.School)
                     .ThenInclude(s => s.Institute)
                 .Include(p => p.Sprints)
