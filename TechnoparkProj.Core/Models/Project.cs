@@ -11,7 +11,7 @@ namespace TechnoparkProj.Core.Models
         FOUR
     }
 
-    public enum Duration
+    public enum Duration:int
     {
         NONE = 0,
         ONEWEEK = 7,

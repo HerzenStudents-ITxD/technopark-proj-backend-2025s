@@ -179,6 +179,26 @@ namespace TechnoparkProj.Controllers
                 await _context.SaveChangesAsync();
             }
 
+
+            if (project.Duration != 0)
+            {
+                var backlog = new Sprint(0, true, 0, new DateTime(), project.Id);
+
+                await _context.Sprints.AddAsync(backlog);
+                await _context.SaveChangesAsync();
+
+                var deadline = project.StartDate;
+                for(int i = 0; i < (17*7/(int)project.Duration); i++)
+                {
+                    int dur = project.Duration == Duration.ONEWEEK ? 7 : 14;
+                    deadline = deadline.AddDays(dur);
+                    var sprint = new Sprint(0, false, 0, deadline, project.Id);
+
+                    await _context.Sprints.AddAsync(sprint);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
             return Ok(new
             {
                 success = true,
