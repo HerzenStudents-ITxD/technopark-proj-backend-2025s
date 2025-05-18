@@ -205,6 +205,103 @@ namespace TechnoparkProj.Controllers
                 projectId = project.Id
             });
         }
+
+        [HttpGet("edit/{id}")]
+        public async Task<IActionResult> GetProjectForEdit(int id)
+        {
+            var project = await _context.Projects
+                .Include(p => p.School)
+                .Include(p => p.StudProjLinks)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (project == null)
+                return NotFound();
+
+            return Ok(new
+            {
+                project = new
+                {
+                    project.Id,
+                    project.Name,
+                    project.Description,
+                    project.Course,
+                    project.Year,
+                    Semester = project.Semester == Semester.SPRING ? 1 : 2,
+                    project.Duration,
+                    StartDate = project.StartDate.ToString("yyyy-MM-dd"),
+                    InstituteId = project.School?.InstituteId,
+                    project.SchoolId,
+                    StudentIds = project.StudProjLinks.Select(l => l.StudentId)
+                }
+            });
+        }
+
+        [HttpPut("update-project/{id}")]
+        public async Task<IActionResult> UpdateProject(int id, [FromBody] UpdateProjectRequest request)
+        {
+            try
+            {
+                var project = await _context.Projects
+                    .Include(p => p.StudProjLinks)
+                    .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (project == null)
+                    return NotFound($"Project with id {id} not found");
+
+                // Обновляем основные данные проекта
+                project.Name = request.Name;
+                project.Description = request.Description;
+                project.Course = request.Course;
+                project.Year = request.Year;
+                project.Semester = request.Semester; // 1 - весна, 2 - осень
+                project.Duration = request.SprintDuration;
+                project.StartDate = request.StartDate;
+                project.SchoolId = request.SchoolId;
+
+                // Обновляем связи со студентами
+                var currentStudentIds = project.StudProjLinks.Select(l => l.StudentId).ToList();
+                var newStudentIds = request.StudentIds;
+
+                // Удаляем отсутствующих студентов
+                var toRemove = project.StudProjLinks
+                    .Where(l => !newStudentIds.Contains(l.StudentId))
+                    .ToList();
+
+                _context.StudProjLinks.RemoveRange(toRemove);
+
+                // Добавляем новых студентов
+                var toAdd = newStudentIds
+                    .Where(id => !currentStudentIds.Contains(id))
+                    .Select(id => new StudProjLink { StudentId = id, ProjectId = project.Id })
+                    .ToList();
+
+                await _context.StudProjLinks.AddRangeAsync(toAdd);
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new
+                {
+                    success = true,
+                    project = new
+                    {
+                        project.Id,
+                        project.Name,
+                        project.Description,
+                        project.Course,
+                        project.Year,
+                        Semester = project.Semester == Semester.SPRING ? 1 : 2,
+                        project.Duration,
+                        project.StartDate,
+                        project.SchoolId,
+                        StudentIds = project.StudProjLinks.Select(l => l.StudentId)
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
     }
 }
 
