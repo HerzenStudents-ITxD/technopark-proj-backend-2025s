@@ -112,7 +112,7 @@ namespace TechnoparkProj.Controllers
                                                 spl.Student.Surname + " " + spl.Student.Name
                                             )).ToList(),
                                             p.Year,
-                                            0
+                                            CalculateProgress(p.Sprints)
                                             )
                 )
                 .ToListAsync();
@@ -121,7 +121,7 @@ namespace TechnoparkProj.Controllers
         }
 
         [HttpGet("proj-by-id")]
-        public async Task<ActionResult> GetProjectById(int id)
+        public async Task<ActionResult> GetProjectById([FromQuery]int id)
         {
             var projects = _context.Projects
                 .Where(p => p.Id == id)
@@ -131,8 +131,8 @@ namespace TechnoparkProj.Controllers
                     .ThenInclude(s => s.Tickets);
 
 
-            var projectsDto = await projects
-                .Select(p => new ProjectsDto(
+            var projectDto = await projects
+                .Select(p => new ProjectDto(
                                             p.Id,
                                             p.Name,
                                             p.Description,
@@ -145,12 +145,12 @@ namespace TechnoparkProj.Controllers
                                                 spl.Student.Surname + " " + spl.Student.Name
                                             )).ToList(),
                                             p.Year,
-                                            0
+                                            p.Sprints
                                             )
                 )
                 .ToListAsync();
 
-            return Ok(new GetProjectsResponse(projectsDto));
+            return Ok(new GetProjectByIdResponse(projectDto));
         }
 
         [HttpPost]
