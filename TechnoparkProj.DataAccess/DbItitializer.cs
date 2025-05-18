@@ -92,6 +92,7 @@ namespace TechnoparkProj.DataAccess
                 new Sprint{ProjectId=1, IsBacklog=true, Status=SprintStatus.WORKING},
                 new Sprint{ProjectId=1, IsBacklog=false, Status=SprintStatus.WORKING},
                 new Sprint{ProjectId=2, IsBacklog=true, Status=SprintStatus.WORKING},
+                new Sprint{ProjectId=2, IsBacklog=false, Status=SprintStatus.WORKING},
                 new Sprint{ProjectId=2, IsBacklog=false, Status=SprintStatus.WORKING}
             };
             foreach (Sprint s in sprints)
@@ -107,7 +108,7 @@ namespace TechnoparkProj.DataAccess
                 new Ticket{SprintID=2, Name="Задача 3", Status=TicketStatus.WORKING, Description="Третья задача"},
                 new Ticket{SprintID=3, Name="Задача 4", Status=TicketStatus.DONE, Description="Четвертая задача"},
                 new Ticket{SprintID=4, Name="Задача 5", Status=TicketStatus.WORKING, Description="Пятая задача"},
-                new Ticket{SprintID=4, Name="Задача 6", Status=TicketStatus.WORKING, Description="Шестая задача"}
+                new Ticket{SprintID=5, Name="Задача 6", Status=TicketStatus.WORKING, Description="Шестая задача"}
             };
             foreach (Ticket t in tickets)
             {
