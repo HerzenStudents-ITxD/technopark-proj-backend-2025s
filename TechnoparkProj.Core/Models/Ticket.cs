@@ -13,8 +13,17 @@ namespace TechnoparkProj.Core.Models
         public Ticket()
         {
             Id = 0;
-            SprintID = 0;
+            SprintId = 0;
             Name = "start name";
+        }
+
+        public Ticket(int id, string name, TicketStatus status, string description, int sprintId)
+        {
+            Id = id;
+            Name = name;
+            Status = status;
+            Description = description;
+            SprintId = sprintId;
         }
 
         public int Id { get; set; }
@@ -23,7 +32,7 @@ namespace TechnoparkProj.Core.Models
         public string? Description { get; set; }
 
         // внешние ключи
-        public int SprintID { get; set; }
+        public int SprintId { get; set; }
 
         public Sprint Sprint { get; set; }
     }

@@ -103,12 +103,12 @@ namespace TechnoparkProj.DataAccess
 
             var tickets = new Ticket[]
             {
-                new Ticket{SprintID=1, Name="Задача 1", Status=TicketStatus.DONE, Description="Первая задача"},
-                new Ticket{SprintID=1, Name="Задача 2", Status=TicketStatus.DONE, Description="Вторая задача"},
-                new Ticket{SprintID=2, Name="Задача 3", Status=TicketStatus.WORKING, Description="Третья задача"},
-                new Ticket{SprintID=3, Name="Задача 4", Status=TicketStatus.DONE, Description="Четвертая задача"},
-                new Ticket{SprintID=4, Name="Задача 5", Status=TicketStatus.WORKING, Description="Пятая задача"},
-                new Ticket{SprintID=5, Name="Задача 6", Status=TicketStatus.WORKING, Description="Шестая задача"}
+                new Ticket{SprintId=1, Name="Задача 1", Status=TicketStatus.DONE, Description="Первая задача"},
+                new Ticket{SprintId=1, Name="Задача 2", Status=TicketStatus.DONE, Description="Вторая задача"},
+                new Ticket{SprintId=2, Name="Задача 3", Status=TicketStatus.WORKING, Description="Третья задача"},
+                new Ticket{SprintId=3, Name="Задача 4", Status=TicketStatus.DONE, Description="Четвертая задача"},
+                new Ticket{SprintId=4, Name="Задача 5", Status=TicketStatus.WORKING, Description="Пятая задача"},
+                new Ticket{SprintId=5, Name="Задача 6", Status=TicketStatus.WORKING, Description="Шестая задача"}
             };
             foreach (Ticket t in tickets)
             {

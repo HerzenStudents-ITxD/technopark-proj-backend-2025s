@@ -35,7 +35,7 @@ namespace TechnoparkProj.DataAccess
             modelBuilder.Entity<Ticket>()
                 .HasOne(e => e.Sprint)
                 .WithMany(e => e.Tickets)
-                .HasForeignKey(e => e.SprintID)
+                .HasForeignKey(e => e.SprintId)
                 .IsRequired();
 
             modelBuilder.Entity<School>()
