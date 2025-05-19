@@ -8,7 +8,7 @@ namespace TechnoparkProj.DataAccess
         public static void Initialize(TechnoparkProjDbContext context)
         {
             //context.Database.EnsureDeleted();
-            //context.Database.EnsureCreated();
+            context.Database.EnsureCreated();
 
             if (context.Projects.Any())
             {
