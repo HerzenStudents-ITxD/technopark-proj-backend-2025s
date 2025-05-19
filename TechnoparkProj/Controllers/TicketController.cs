@@ -17,12 +17,12 @@ namespace TechnoparkProj.Controllers
             _context = context;
         }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Ticket>>> GetTickets()
-        {
-            return await _context.Tickets
-                .ToListAsync();
-        }
+        //[HttpGet]
+        //public async Task<ActionResult<IEnumerable<Ticket>>> GetTickets()
+        //{
+        //    return await _context.Tickets
+        //        .ToListAsync();
+        //}
 
         [HttpPut("update-sprint")]
         public async Task<ActionResult<IEnumerable<Ticket>>> UpdateSprintId([FromQuery] int ticketId, [FromBody] int? sprintId)
