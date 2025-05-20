@@ -253,7 +253,7 @@ namespace TechnoparkProj.Controllers
                 project.Description = request.Description;
                 project.Course = request.Course;
                 project.Year = request.Year;
-                project.Semester = request.Semester; // 1 - весна, 2 - осень
+                project.Semester = (Semester)(request.Semester-1); // 1 - весна, 2 - осень
                 project.Duration = request.SprintDuration;
                 project.StartDate = request.StartDate;
                 project.SchoolId = request.SchoolId;
